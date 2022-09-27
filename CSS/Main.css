@@ -28,13 +28,13 @@ header {
 	left: 0;
 	display: inline-block;
 	cursor: pointer;
-	padding: 5px;
+	padding: 1mm;
 	vertical-align: middle;
 	background-color: rgb(40, 60, 100);
 }
 #Hamburger div {
 	width: 35px;
-	height: 5px;
+	height: 1mm;
 	background-color: rgb(255, 255, 255);
 	margin: 6px 0;
 	transition: 0.4s;
@@ -57,7 +57,7 @@ nav {
 	left: 0;
 	background-color: rgb(40, 60, 100);
 	overflow-x: hidden;
-	padding-top: 55px;
+	padding-top: 15mm;
 	transition: 0.5s;
 }
 nav a {
@@ -67,8 +67,9 @@ nav a {
 	display: block;
 	margin: auto;
 	width: 90%;
-	height: 25px;
-	padding: 10px;
+	height: 5mm;
+	padding: 2mm;
+	overflow: hidden;
 	border-bottom: dotted 1px rgb(255, 255, 255);
 }
 nav a:hover {
@@ -92,8 +93,8 @@ header h1 {
 }
 img.logo {
 	display: inline-block;
-	width: 50px;
-	height: 50px;
+	width: 10mm;
+	height: 10mm;
 	float: right;
 	margin-right: 10px;
 }
@@ -104,5 +105,5 @@ img.logo {
 	margin: auto;
 }
 main {
-	margin-top: 50px;
+	margin-top: 12mm;
 }
