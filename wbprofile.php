@@ -4,7 +4,8 @@
 	if (!isset($_SESSION['memno'])) {
 		header("location:wblogin.php");
 	}
-	$user = $conn->query("select * from Wbusers a, profiles b where a.MemNo = '{$_SESSION[('memno')]}' and a.MemNo = b.MemNo;")->fetch_assoc();
+	$user = $conn->query("select a.MemNo, Name, TO_CHAR(DOB, 'DD MONTH YYYY') Dt, Sex, Mobile, Email, Designation, PostedAt, Company from Wbusers a, profiles b where a.MemNo = '{$_SESSION[('memno')]}' and a.MemNo = b.MemNo;")->fetch_assoc();
+    $myauth = $conn->query("select Page, PageName, PageLink from AuthMatrix a, Pageindex b where a.MemNo = '{$_SESSION[('memno')]}' and a.Page=b.PageNo order by PageName;");
 ?>
 
 <!DOCTYPE html>
@@ -31,31 +32,66 @@
 
 <div class="content-column">
 	<h2>Profile</h2>
-	<div>
-		<h3>Membership Number</h3>
-		<?php echo $user["MemNo"]; ?>
-	</div>
-	<div>
-		<h3>Name</h3>
-		<?php echo $user["Name"]; ?>
-	</div>
-	<div>
-		<h3>Date of Birth</h3>
-		<?php echo $user["DOB"]; ?>
-	</div>
-	<div>
-		<h3>Sex</h3>
-		<?php echo $user["Sex"]; ?>
-	</div>
-	<div>
-		<h3>Phone Number</h3>
-		<?php echo $user["Mobile"]; ?>
-	</div>
-	<div>
-		<h3>Email</h3>
-		<?php echo $user["Email"]; ?>
-	</div>
-	<a href="wblogout.php">Log Out</a>
+
+<table>
+    <tr>
+        <th style="width:40%"></th>
+        <th style="width:5%"></th>
+        <th></th>
+        <thstyle="width:20%"></th>
+    </tr>
+    <tr>
+        <td><h3>Membership Number</h3></td>
+        <td></td>
+        <td style="text-align:left"><?php echo $user["MemNo"]; ?></td>
+    </tr>
+    <tr>
+        <td><h3>Name</h3></td>
+        <td></td>
+        <td style="text-align:left"><?php echo $user["Name"]; ?></td>
+    </tr>
+    <tr>
+        <td style="width:10%"><h3>Date of Birth</h3></td>
+        <td></td>
+        <td style="text-align:left"><?php echo $user["Dt"]; ?></td>
+    </tr>
+    <tr>
+        <td><h3>Sex</h3></td>
+        <td></td>
+        <td style="text-align:left"><?php echo $user["Sex"]; ?></td>
+    </tr>
+    <tr>
+        <td><h3>Contact Number</h3></td>
+        <td></td>
+        <td style="text-align:left"><?php echo $user["Mobile"]; ?></td>
+    </tr>
+    <tr>
+        <td><h3>Email</h3></td>
+        <td></td>
+		<td style="text-align:left"><?php echo $user["Email"]; ?></td>
+    </tr>
+    <tr>
+        <td><h3>Designation</h3></td>
+        <td></td>
+		<td style="text-align:left"><?php echo $user["Designation"]; ?></td>
+    </tr>
+    <tr>
+        <td><h3>Posted At</h3></td>
+        <td></td>
+		<td style="text-align:left"><?php echo $user["PostedAt"]; ?></td>
+    </tr>
+    <tr>
+        <td><h3>Company</h3></td>
+        <td></td>
+		<td style="text-align:left"><?php echo $user["Company"]; ?></td>
+    </tr>
+</table>
+    <a href="wbsubscription.php">Subscription</a>
+	<p><a href="wblogout.php">Log Out</a></p>
+	
+ <?php while ($authloop = $myauth->fetch_assoc()) { ?>	
+    <p><a href="<?php echo $authloop['PageLink']; ?>"><?php echo $authloop['PageName']; ?></a></p>
+<?php } ?>
 </div>
 
 <div class="ad-column">
