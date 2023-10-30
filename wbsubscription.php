@@ -33,8 +33,40 @@ $utr = $_POST['utrno1'];
 $remarks = $_POST['remarks'];
 $dt = date('d/m/Y h:i:s a', time());
 	if ($utr == $_POST['utrno2']) {
-$payinfo = $conn->query("INSERT INTO Onlinepay (MemNo, Amount, UTR, DOP, MemberRemarks, Tdate) VALUES ('$auth', '$amount', '$utr', '$dop', '$remarks', '$dt')");
-	    echo "Success!! Payment information submitted";
+        $payinfo = $conn->query("INSERT INTO Onlinepay (MemNo, Amount, UTR, DOP, MemberRemarks, Tdate) VALUES ('$auth', '$amount', '$utr', '$dop', '$remarks', '$dt')");
+	    echo "Success!! Payment information submitted.";
+
+            $mailtext = "Your payment information has been submitted successfully.";
+//            $sql = $conn->query("UPDATE Wbusers SET OTP='$randno', OTPTime='$dt' WHERE MemNo = '$memno'");
+            $profiles = $conn->query("SELECT * FROM profiles WHERE MemNo = '$auth'");
+            $row = $profiles -> fetch_assoc();
+            $to = $row["Email"];
+            $subject = "Your Payment information submitted successfully (do not reply)";
+            $message = "Dear ";
+            $message .= $row["Name"];
+            $message .= " (";
+            $message .= $auth;
+            $message .= ")";
+            $message .= "<p>$mailtext";
+//            $message .= $randno;
+//            $message .= ".";
+            $message .= "<p>Amount Paid: Rs. ";
+            $message .= $amount;
+            $message .= ", UTR No.: ";
+            $message .= $utr;
+            $message .= ", Payment date: ";
+            $message .= $dop;
+            $message .= ".";
+            $message .= "<p>Payment receipt will be issued after reconciliation.";
+            $message .= "<p>Treasury team, WBSEF&AMA";
+        
+            $header = "From:subscription@wbsefama.org \r\n";
+            $header .= "MIME-Version: 1.0\r\n";
+            $header .= "Content-type: text/html\r\n";
+         
+            $retval = mail ($to,$subject,$message,$header);
+
+
 	    //echo $auth;
 	    //echo $amount;
 	    //echo $utr;
