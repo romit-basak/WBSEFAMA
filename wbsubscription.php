@@ -20,10 +20,16 @@
 	<link rel="stylesheet" type="text/css" href="CSS/StylesMain.css">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
 	<script type="text/javascript" src="Javascript/ScriptMain.js"></script>
+	<script defer src="https://pyscript.net/alpha/pyscript.js"></script>
 </head>
 <body>
+<py-env>
+  - qrcode
+  - pillow
+</py-env>
 <?php include 'sidebar.php' ?>
-<div style="margin-left:25%">
+<div style="margin-left:15%">
+<div style="margin-right:25%">
 <?php
 if ($_REQUEST['btn_submit']=="Submit Payment Details") {
     
@@ -95,65 +101,101 @@ $dt = date('d/m/Y h:i:s a', time());
     <?php 
         //$due = $conn->query("SELECT Dues.MemNo, Name, Year, Mths_in_Yr, OpBal, Membership, Farewell,OpBal+Membership+Farewell Total, Payment FROM profiles, Dues LEFT JOIN Payments ON Dues.MemNo = Payments.MemNo where Dues.Year= $BaseYr and Dues.MemNo=profiles.MemNo and profiles.MemNo = '{$_SESSION[('memno')]}'")->fetch_assoc(); 
     
-        $due = $conn->query("SELECT Dues.MemNo, Name, Dues.Year, Mths_in_Yr, OpBal, Membership, Farewell,OpBal+Membership+Farewell Total, Payment FROM profiles, Dues LEFT JOIN TotPayments ON (Dues.MemNo = TotPayments.MemNo and TotPayments.Year= $BaseYr ) where Dues.Year= $BaseYr and Dues.MemNo=profiles.MemNo and profiles.MemNo = '{$_SESSION[('memno')]}'")->fetch_assoc(); ?>
+        $due = $conn->query("SELECT Dues.MemNo, Name, Dues.Year, Mths_in_Yr, OpBal, Membership, Farewell,OpBal+Membership+Farewell Total, Payment FROM profiles, Dues LEFT JOIN TotPayments ON (Dues.MemNo = TotPayments.MemNo and TotPayments.Year= $BaseYr ) where Dues.Year= $BaseYr and Dues.MemNo=profiles.MemNo and profiles.MemNo = '{$_SESSION[('memno')]}'")->fetch_assoc();
+        //$onlpay = $conn->query("SELECT sum(Amount) Onl from Onlinepay where MemNo = $auth and DOP >= $StartDt and DOP <= $EndDt and length(Recon)=0 group by MemNo");
+        $onlpay = $conn->query("SELECT sum(Amount) Onl from Onlinepay")->fetch_assoc();
+        //echo $onlpay['Onl'];
+        ?>
 <?php echo "Financial Year: ", $FinYr; ?>
 
-<table>
-    <tr>
+<table style="width:80%">
+    <tr style="height:2px">
+        <th style="width:15%"></th>
+        <th style="width:20%"></th>
         <th style="width:10%"></th>
-         <th style="width:5%"></th>
-        <th style="width:10%"></th>
-         <th style="width:5%"></th>
-        <th style="width:70%"></th>
+        <th style="width:40%"></th>
+        <th style="width:35%"></th>
     </tr>
-    <tr>
+
+    <tr style="height:2px">
+        <td></td>
         <td><h3>Member</h3></td>
         <td></td>
         <td colspan="3" style="text-align:left"><?php echo $user["Name"], "  (", $user["MemNo"], ")" ; ?></td>
         <td></td>
     </tr>
-    <tr>
+    <tr style="height:2px">
+        <td></td>
         <td><h3>Prev Dues</h3></td>
         <td></td>
         <td style="text-align:right"><?php echo($due['OpBal']); ?></td>
-        <td style="text-align:center"><b>Scan for payment</b></td>
     </tr>
-    <tr>
+    <tr style="height:2px">
+        <td></td>
         <td style="width:10%"><h3>Subscription</h3></td>
         <td></td>
         <td style="text-align:right"><?php echo($due['Membership']); ?></td>
-        <td rowspan="3" 
-            <div style="width:150px;height:150px;overflow:hidden;" >
-	            <img src="Images/Subscription/WBSEFAMA QR.jpeg" width="150px" height="auto">
-            </div>
-        </td>
     </tr>
-    <tr>
+    <tr style="height:2px">
+        <td></td>
         <td><h3>Farewell</h3></td>
         <td></td>
         <td style="text-align:right"><?php echo $due['Farewell']; ?></td>
     </tr>
-    <tr>
+    <tr style="height:2px">
+        <td></td>
         <td><h3>Total</h3></td>
         <td></td>
         <td style="text-align:right"><?php echo $due['Total']; ?></td>
     </tr>
-    <tr>
+    <tr style="height:2px">
+        <td></td>
         <td><h3>Payment</h3></td>
         <td></td>
 		<td style="text-align:right"><?php echo $due['Payment']; ?></td>
-        <td rowspan="2" ><font color = "red">After payment please fill the form below for reconciliation and issue of payment receipt.</font></td>
     </tr>
-    <tr>
-        <td><h3>Balance Payable</h3></td>
+    <tr style="height:2px">
+        <td></td>
+        <td><h3>Balance</h3></td>
         <td></td>
         <?php $tot=$due['Total']; ?>
         <?php $pay=$due['Payment']; ?>
 		<td style="text-align:right"><b><?php echo $tot-$pay; ?></b></td>
-
+    </tr>
+    <tr style="height:2px">
+        <td></td>
+        <td><h3>Unreconciled Payment</h3></td>
+        <td></td>
+        <?php $onl=$onlpay['Onl']; ?>
+		<td style="text-align:right"><?php echo $onl; ?></td>
+    </tr>
+    <tr style="height:2px">
+        <td></td>
+        <td><h3>Payment Due</h3></td>
+        <td></td>
+        <?php $baldue=$tot-$pay-$onl; ?>
+		<td style="text-align:right"><b><?php echo $baldue; ?></b></td>
     </tr>
 </table>
 </div>
+<?php if ($baldue > 0) { ?>
+<p><b>Scan for payment</b>
+
+<py-script>
+import qrcode
+import base64 
+ 
+# Naprawiam oryginalną zepsutą metodę render_image
+def render_image(mime, value, meta):
+  data = f"data:{mime};base64,{base64.b64encode(value).decode('utf-8')}"
+  return f"\u003cimg src='{data}'\u003e"
+
+img = qrcode.make("upi://pay?pa=9432068009@ucobank&am=<?php echo $baldue; ?>&tn=Mem <?php echo $auth; ?>")
+ 
+# Zwracam referencję do obrazka w ostatniej linii kodu
+img
+</py-script>  
+<font color = "red">After payment please fill the form below for reconciliation and issue of payment receipt.</font>
 <div class="content">
     <div class="form-container">
 		<form
@@ -213,11 +255,14 @@ $dt = date('d/m/Y h:i:s a', time());
 		include 'ad.php';
 	?>
 </div>
+<?php } ?>
 <script>
     if ( window.history.replaceState ) {
         window.history.replaceState( null, null, window.location.href );
     }
 </script>
+
+
 
 </body>
 
