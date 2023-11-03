@@ -84,10 +84,8 @@ if ($_REQUEST['btn_submit']=="Update Designation") {
         if ($mysubmit == 1) {
  	        $rdesi = $_POST['rdesignation'];
             $dt = date('d/m/Y h:i:s a', time());
-            $modidesig = $conn->query("UPDATE 
-            profiles SET Designation = '$rdesi' WHERE MemNo = '$qmemno' ");
+            $modidesig = $conn->query("UPDATE profiles SET Designation = '$rdesi' WHERE MemNo = '$qmemno' ");
        	    $modidesig = $conn->query("INSERT INTO wblog (KeyNo, PageNo, Item, Value1, Value2, User, Tdate) VALUES ('$qmemno', '$pageno', 'Desig', '$edesignation', '$rdesi', '$auth', '$dt'); ");
-    	   
             $permission = "Success!! - Designation updated";    
             $mysubmit = 0;
             //echo $mysubmit;
@@ -135,6 +133,7 @@ if ($_REQUEST['btn_submit']=="Update Posted At") {
 
 
 <div class="content">
+    <h1>Member Admin</h1>
     <div class="form-container">
 		<form
 			method="post"
