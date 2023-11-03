@@ -49,7 +49,7 @@ tr:nth-child(even) {
 
 </head>
 <body>
-//<?php include 'sidebar.php' ?>
+<?php include 'sidebar.php' ?>
 <div class="content">
 
 <h1>Dues Admin</h1>
@@ -57,8 +57,13 @@ tr:nth-child(even) {
 <?php
 $pageno = 2;
 
-if ($_REQUEST['btn_submit']=="Start") {
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+
+if ($_REQUEST['btn_submit']=="Insert") {
+    //echo "a";
+    //echo $mysubmit;
+    if ($_SERVER['REQUEST_METHOD'] == "POST") {
+
         $mysubmit=0;
 	    if ($conn->query("select MemNo from AuthMatrix where BINARY MemNo = $auth and BINARY Page = $pageno ") ->num_rows == 1) {
 	        $mysubmit = 1;
@@ -67,17 +72,10 @@ if ($_REQUEST['btn_submit']=="Start") {
 	        $mysubmit = 0;
 	        $permission = "You are not authorized to perform this action.";
 	    }
-    }
-}
 
-
-if ($_REQUEST['btn_submit']=="Insert") {
-    //echo "a";
-    //echo $mysubmit;
-    if ($_SERVER['REQUEST_METHOD'] == "POST") {
         //echo "b";
-        $mysubmit = $_POST['mysubmit'];
-        echo $mysubmit;
+        //$mysubmit = $_POST['mysubmit'];
+        //echo $mysubmit;
         //$mysubmit = 0;
         if ($mysubmit == 1) {
     	    $memno = $_POST['memno'];
@@ -88,28 +86,29 @@ if ($_REQUEST['btn_submit']=="Insert") {
     	    $payperiod = $_POST['payperiod'];
     	    $onldt = $_POST['onldt'];
     	    $onlno = $_POST['onlno'];
-    	    $createorder = $conn->query("INSERT INTO Payments (MemNo, Payment, ReceiptNo, ReceiptDate, Mode, Period, OnlineNo, OnlineDate) VALUES ('$memno', '$payment', '$rcptno', '$rcptdt', '$paymode', '$payperiod', '$onlno', '$onldt'); ");
-    	    $totpay = $conn->query("SELECT sum(Payment) Tpay FROM `Payments` WHERE MemNo = $memno and ReceiptDate BETWEEN '$StartDt' and '$EndDt' ")->fetch_assoc();
-    	    $tpay = $totpay['Tpay'];
-    	    $totpay = $conn->query("DELETE FROM TotPayments where Year = $BaseYr and MemNo = '$memno' ");
-    	    echo $tpay;
-    	    $totpay = $conn->query("INSERT INTO TotPayments (MemNo, Payment, Year) VALUES ('$memno', '$tpay', $BaseYr) ");
-            $permission = "Success!! - Payment Inserted";    
-            $mysubmit = 0;
-            echo $mysubmit;
-            $memno=NULL;
-            $payment=NULL;
-            $rcptno=NULL;
-            $rcptdt=NULL;
-            $paymode=NULL;
-            $payperiod=NULL;
-            $onlno=NULL;
-            $onldt=NULL;
-            //echo $orderno;
-            //echo $orderdt;
-            //echo $subject;
-            //echo $link;
-            //echo $mysubmit;
+	        if ($paymode !== "") {
+	            if ($payperiod !== ""){
+    	            $createorder = $conn->query("INSERT INTO Payments (MemNo, Payment, ReceiptNo, ReceiptDate, Mode, Period, OnlineNo, OnlineDate) VALUES ('$memno', '$payment', '$rcptno', '$rcptdt', '$paymode', '$payperiod', '$onlno', '$onldt'); ");
+    	            $totpay = $conn->query("SELECT sum(Payment) Tpay FROM `Payments` WHERE MemNo = $memno and ReceiptDate BETWEEN '$StartDt' and '$EndDt' ")->fetch_assoc();
+            	    $tpay = $totpay['Tpay'];
+    	            $totpay = $conn->query("DELETE FROM TotPayments where Year = $BaseYr and MemNo = '$memno' ");
+            	    //echo $tpay;
+    	            $totpay = $conn->query("INSERT INTO TotPayments (MemNo, Payment, Year) VALUES ('$memno', '$tpay', $BaseYr) ");
+                    $permission = "Success!! - Payment Inserted";    
+                    $mysubmit = 0;
+                    //echo $mysubmit;
+                    $memno=NULL;
+                    $payment=NULL;
+                    $rcptno=NULL;
+                    $rcptdt=NULL;
+                    $paymode=NULL;
+                    $payperiod=NULL;
+                    $onlno=NULL;
+                    $onldt=NULL;
+        	    } else {
+    	            $permission = "Please select Payment Period"; }
+    	    } else {
+    	        $permission = "Please select Payment Mode"; }
         } else {
         //		$error = "Incorrect Credentials";
             $permission = "You are not authorized to perform this action.";
@@ -121,10 +120,6 @@ if ($_REQUEST['btn_submit']=="Insert") {
 
 ?>
 
-<? php
-    $tpay = $totpay['Tpay'];
-    echo $tpay;
-?>
 
 <div class="content">
     <div class="form-container">
@@ -143,7 +138,6 @@ if ($_REQUEST['btn_submit']=="Insert") {
                     readonly="true"
                     
                 >
-				<input type="submit" name="btn_submit" value="Start">
 				<?php echo $error ?>
 			</div>
 		</form>
@@ -155,17 +149,17 @@ if ($_REQUEST['btn_submit']=="Insert") {
 		>
             <input type="hidden" name="mysubmit" value="<?php echo $mysubmit; ?>" />
 			<div>
-				<label for="memno">Membership#</label>
-				<input
-					type="integer"
-					name="memno"
-					id="memno"
-					required
-				>
+                <label for="memno">Membership #</label>
+                <input 
+                    type="text" 
+                    name="memno" 
+                    id="memno"
+                    required
+                >
 			</div>
 			<div>
-				<label for="payment">Payment Amount</label>
-				<input
+                <label for="payment">Payment Amount</label>
+                <input 
 					type="integer"
 					name="payment"
 					id="payment"
