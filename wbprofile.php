@@ -17,13 +17,19 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Profile</title>
 	<link rel="stylesheet" type="text/css" href="CSS/StylesMain.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+	<script type="text/javascript" src="Javascript/ScriptMain.js"></script>
 </head>
 <body>
 <?php include 'sidebar.php' ?>
-<div style="margin-left:25%">
+<div style="margin-left:20%">
 <div style="margin-right:5%">
 
-
+<style>
+textarea {
+  resize: none;
+}
+</style>
 <div class="ad-column">
 	<?php
 		$adType = "desktop";
@@ -78,8 +84,7 @@
 		<td style="text-align:left"><?php echo $user["Email"]; ?></td>
 		<td rowspan="3">
         <b>To change Profile Image</b> <br>
-        1. Upload square image of size within 200 KB in JPG format only. <br>
-        2. Rename Image file as <b>MemNo.jpg</b> (Ex where MemNo is 950 rename file as 950.jpg) <br><br>
+        Upload a square image of size within 200 KB in JPG/ JPEG/ PNG format only.
 		<?php
             if(isset($_FILES['image'])){
                 $errors= array();
@@ -89,21 +94,25 @@
                 $file_type=$_FILES['image']['type'];
                 $file_ext=strtolower(end(explode('.',$_FILES['image']['name'])));
       
-                $expensions= array("jpg");
-      
+                $expensions= array("jpg", "jpeg", "png");
+                $msg="";
                 if(in_array($file_ext,$expensions)=== false){
-                    echo nl2br ("\n Fail!! Extension not allowed, please choose a JPG file.");
+                    $msg=$msg."Fail!! Extension not allowed, please choose a JPG/ JPEG/ PNG file.";
+                    //echo nl2br ("\n Fail!! Extension not allowed, please choose a JPG/ JPEG/ PNG file.");
                     $errors[]="extension not allowed, please choose a JPG file.";
                 }
       
                 if($file_size > 209716){
-                    echo nl2br ("\n Fail!! File size must be within 200 KB");
+                    $msg=$msg."Fail!! File size must be within 200 KB";
+                    //echo nl2br ("\n Fail!! File size must be within 200 KB");
                     $errors[]='File size must be within 200 KB';
                 }
       
                 if(empty($errors)==true){
+                    //move_uploaded_file($file_tmp,"Images/Members/Requests/".$user["MemNo"].".jpg");
                     move_uploaded_file($file_tmp,"Images/Members/Requests/".$file_name);
-                    echo nl2br ("\n Success!! Image submitted for approval");
+                    $msg=$msg."Success!! Image submitted for approval";
+                    //echo nl2br ("\n Success!! Image submitted for approval");
                     //echo  nl2br ("\n kings \n garden");
                 }else{
                     //print_r($errors);
@@ -113,6 +122,9 @@
 
       
         <form action="" method="POST" enctype="multipart/form-data">
+            <textarea id="msg" name="msg" rows="3" cols="30" margin: "0px" readonly style="align-content:center; overflow:auto; border:"none" outset #000000;">
+                <?php echo $msg; ?>
+            </textarea>
             <input type="file" name="image" />
             <input type="submit"/>
         </form>
@@ -148,6 +160,21 @@
 		include 'ad.php';
 	?>
 </div>
+
+<script>
+
+    function msg(){
+        var result = document.getElementById(msg).value;
+        console.log(result);
+        result = result.trim();
+        console.log(result);
+        document.getElementById("text-area").value = result
+    }
+    if ( window.history.replaceState ) {
+        window.history.replaceState( null, null, window.location.href );
+    }
+</script>
+
 
 </body>
 

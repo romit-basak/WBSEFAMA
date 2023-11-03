@@ -38,8 +38,13 @@
 $pageno = 3;
 $error = "";
 $permission = "";
-if ($_REQUEST['btn_submit']=="Start") {
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+
+
+if ($_REQUEST['btn_submit']=="Get Details") {
+//    echo $otpcounter;
+    if ($_SERVER['REQUEST_METHOD'] == "POST") {
+
         $mysubmit=0;
 	    if ($conn->query("select MemNo from AuthMatrix where BINARY MemNo = $auth and BINARY Page = $pageno ") ->num_rows == 1) {
 	        $mysubmit = 1;
@@ -48,15 +53,10 @@ if ($_REQUEST['btn_submit']=="Start") {
 	        $mysubmit = 0;
 	        $permission = "You are not authorized to perform this action.";
 	    }
-    }
-}
 
 
-if ($_REQUEST['btn_submit']=="Get Details") {
-//    echo $otpcounter;
-    if ($_SERVER['REQUEST_METHOD'] == "POST") {
 	    $qmemno = $_POST['qmemno'];
-        $mysubmit = $_POST['mysubmit'];
+        //$mysubmit = $_POST['mysubmit'];
         if ($mysubmit == 1) {
     	    $qmember = $conn->query("select MemNo, Name, TO_CHAR(DOB, 'DD MONTH YYYY') Dt, Sex, Mobile, Email, Designation, PostedAt, Company from profiles where MemNo = '$qmemno' ;")->fetch_assoc();
     	    $qmemname = $qmember['Name'];
@@ -83,11 +83,9 @@ if ($_REQUEST['btn_submit']=="Update Designation") {
         //$mysubmit = 0;
         if ($mysubmit == 1) {
  	        $rdesi = $_POST['rdesignation'];
-$dt = date('m/d/Y h:i:s a', time());
-$modidesig = $conn->query("UPDATE 
-profiles SET Designation = '$rdesi' WHERE MemNo = '$qmemno' ");
+            $dt = date('d/m/Y h:i:s a', time());
+            $modidesig = $conn->query("UPDATE profiles SET Designation = '$rdesi' WHERE MemNo = '$qmemno' ");
        	    $modidesig = $conn->query("INSERT INTO wblog (KeyNo, PageNo, Item, Value1, Value2, User, Tdate) VALUES ('$qmemno', '$pageno', 'Desig', '$edesignation', '$rdesi', '$auth', '$dt'); ");
-    	   
             $permission = "Success!! - Designation updated";    
             $mysubmit = 0;
             //echo $mysubmit;
@@ -115,8 +113,8 @@ if ($_REQUEST['btn_submit']=="Update Posted At") {
         if ($mysubmit == 1) {
  	        $rposted = $_POST['rpostedat'];
  	        //echo $rposted;
-$dt = date('m/d/Y h:i:s a', time());
-$modiposted = $conn->query("UPDATE profiles SET PostedAt = '$rposted' WHERE MemNo = '$qmemno' ");
+            $dt = date('d/m/Y h:i:s a', time());
+            $modiposted = $conn->query("UPDATE profiles SET PostedAt = '$rposted' WHERE MemNo = '$qmemno' ");
        	    $modiposted = $conn->query("INSERT INTO wblog (KeyNo, PageNo, Item, Value1, Value2, User, Tdate) VALUES ('$qmemno', '$pageno', 'Posting', '$epostedat', '$rposted', '$auth', '$dt') ");
     	   
             $permission = "Success!! - Posting updated";    
@@ -135,6 +133,7 @@ $modiposted = $conn->query("UPDATE profiles SET PostedAt = '$rposted' WHERE MemN
 
 
 <div class="content">
+    <h1>Member Admin</h1>
     <div class="form-container">
 		<form
 			method="post"
@@ -151,7 +150,6 @@ $modiposted = $conn->query("UPDATE profiles SET PostedAt = '$rposted' WHERE MemN
                     readonly="true"
                     
                 >
-			    <input type="submit" name="btn_submit" value="Start">
 			    <?php echo $error ?>
 		    </div>
 		</form>
@@ -173,66 +171,66 @@ $modiposted = $conn->query("UPDATE profiles SET PostedAt = '$rposted' WHERE MemN
             
 			</div>
 				<div>
-            <label for="memname">Member Name</label>
-            <input
-                   type="text" 
-                    name="memname" 
-                    id="memname"
-                    value="<?php echo $qmemname; ?>"
-                    readonly="true"
-                    style="background-color:#FCF5D8;"
-                >
+                    <label for="memname">Member Name</label>
+                    <input
+                        type="text" 
+                        name="memname" 
+                        id="memname"
+                        value="<?php echo $qmemname; ?>"
+                        readonly="true"
+                        style="background-color:#FCF5D8;"
+                    >
                 
-            <label for="company">Company</label>
-            <input
-                   type="text" 
-                    name="company" 
-                    id="company"
-                    value="<?php echo $qcompany; ?>"
-                    readonly="true"
-                    style="background-color:#FCF5D8;"
-                >
-			<div>
-            <label for="edesignation">Existing Designation</label>
-            <input
-                   type="text" 
-                    name="edesignation" 
-                    id="edesignation"
-                    value="<?php echo $qdesignation; ?>"
-                    readonly="true"
-                    style="background-color:#FCF5D8;"
-                >
-				<label for="rdesignation">Revised Designation</label>
-				<select name="rdesignation" id="rdesignation">
-                    <option value="" hidden></option>
-                    <?php while ($qdes = $qdesig->fetch_assoc()) { ?>
+                    <label for="company">Company</label>
+                    <input
+                        type="text" 
+                        name="company" 
+                        id="company"
+                        value="<?php echo $qcompany; ?>"
+                        readonly="true"
+                        style="background-color:#FCF5D8;"
+                    >
+	    		<div>
+                    <label for="edesignation">Existing Designation</label>
+                    <input
+                        type="text" 
+                        name="edesignation" 
+                        id="edesignation"
+                        value="<?php echo $qdesignation; ?>"
+                        readonly="true"
+                        style="background-color:#FCF5D8;"
+                    >
+    				<label for="rdesignation">Revised Designation</label>
+	    			<select name="rdesignation" id="rdesignation">
+                        <option value="" hidden></option>
+                        <?php while ($qdes = $qdesig->fetch_assoc()) { ?>
                         <option value="<?php echo $qdes['Designation']; ?>"><?php echo $qdes['Designation']; ?></option>
-                    <?php } ?>
-				</select>
-				<input type="submit" name="btn_submit" value="Update Designation">
-				<?php echo $error ?>
-			</div>
+                        <?php } ?>
+				    </select>
+				    <input type="submit" name="btn_submit" value="Update Designation">
+				    <?php echo $error ?>
+			    </div>
 			</div>
 				<div>
-				<label for="epostedat">Existing Posted At</label>
-                <input 
-                    type="text" 
-                    name="epostedat" 
-                    id="epostedat"
-                    value="<?php echo $qpostedat; ?>"
-                    readonly="true"
-                    style="background-color:#FCF5D8;"
-                >
-				<label for="rpostedat">Revised Posted At</label>
-				<select name="rpostedat" id="rpostedat">
-                    <option value="" hidden></option>
-                    <?php while ($qpost = $qposted->fetch_assoc()) { ?>
+				    <label for="epostedat">Existing Posted At</label>
+                    <input 
+                        type="text" 
+                        name="epostedat" 
+                        id="epostedat"
+                        value="<?php echo $qpostedat; ?>"
+                        readonly="true"
+                        style="background-color:#FCF5D8;"
+                    >
+		    		<label for="rpostedat">Revised Posted At</label>
+			    	<select name="rpostedat" id="rpostedat">
+                        <option value="" hidden></option>
+                        <?php while ($qpost = $qposted->fetch_assoc()) { ?>
                         <option value="<?php echo $qpost['PostedAt']; ?>"><?php echo $qpost['PostedAt']; ?></option>
-                    <?php } ?>
-				</select>
-				<input type="submit" name="btn_submit" value="Update Posted At">
-				<?php echo $error ?>
-			</div>
+                        <?php } ?>
+	    			</select>
+		    		<input type="submit" name="btn_submit" value="Update Posted At">
+		        	<?php echo $error ?>
+    			</div>
 		</form>
 	</div>
 </div>

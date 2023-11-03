@@ -3,7 +3,7 @@
 	include 'config.php';
 	if (!isset($_SESSION['memno'])) {
 		header("location:wblogin.php");
-	} 
+	}
 	$auth = $_SESSION['memno'];
 //	$user = $conn->query("select * from Wbusers where MemNo = '{$_SESSION[('memno')]}';")->fetch_assoc();
 
@@ -11,7 +11,7 @@
 //    $profiles = $conn->query("SELECT * FROM profiles WHERE memNo > 0 AND Active = 1 ORDER BY Name");
 
 
-    $profiles = $conn->query(" SELECT DocNo, OrderNumber, TO_CHAR(OrderDate, 'DD-MM-YYYY') Dt, Subject, Link FROM Resources ORDER BY DocNo DESC ");
+    $profiles = $conn->query(" SELECT OrderNumber, TO_CHAR(OrderDate, 'DD-MM-YYYY') Dt, Subject, Link FROM Resources ORDER BY OrderDate DESC ");
 
 ?>
 <!DOCTYPE html>
@@ -45,62 +45,62 @@ tr:nth-child(even) {
 
 </head>
 <body>
-//<?php include 'sidebar.php' ?>
-<div class="content">
-
-<h1>Library & Resources Admin</h1>
+<?php include 'sidebar.php' ?>
 
 <?php
 $pageno = 1;
 
-if ($_REQUEST['btn_submit']=="Start") {
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $mysubmit=0;
-	    if ($conn->query("select MemNo from AuthMatrix where BINARY MemNo = $auth and BINARY Page = $pageno ") ->num_rows == 1) {
-	        $mysubmit = 1;
-	        echo "You are authorized to perform this action.";
-	    } else{
-	        $mysubmit = 0;
-	        echo "You are not authorized to perform this action.";
-	    }
-    }
-}
 
 
-if ($_REQUEST['btn_submit']=="Create") {
+if ($_REQUEST['btn_submit']=="Insert") {
     //echo "a";
     //echo $mysubmit;
     if ($_SERVER['REQUEST_METHOD'] == "POST") {
         //echo "b";
-        $mysubmit = $_POST['mysubmit'];
+        $mysubmit=0;
+	    if ($conn->query("select MemNo from AuthMatrix where BINARY MemNo = $auth and BINARY Page = $pageno ") ->num_rows == 1) {
+	        $mysubmit = 1;
+	        $permission = "You are authorized to perform this action.";
+	    } else{
+	        $mysubmit = 0;
+	        $permission = "You are not authorized to perform this action.";
+	    }
+        //$mysubmit = $_POST['mysubmit'];
         //echo $mysubmit;
+        //$mysubmit = 0;
         if ($mysubmit == 1) {
-    	    $orderno = $_POST['orderno'];
-	        $orderdt = $_POST['orderdt'];
-	        $subject = $_POST['subject'];
+    	    $ordno = $_POST['ordno'];
+	        $ordtdt = $_POST['ordtdt'];
+    	    $subject = $_POST['subject'];
     	    $link = $_POST['link'];
     	    $company = $_POST['company'];
-    	    $createorder = $conn->query("INSERT INTO Resources (OrderNumber, OrderDate, Subject, Link, Company) VALUES ('$orderno', '$orderdt', '$subject', '$link', '$company'); ");
-    	    echo "Success!! - Order Created";
-            //echo $mysubmit;
+    	    $dt = date('d/m/Y h:i:s a', time());
+    	    $createorder = $conn->query("INSERT INTO Resources (OrderNumber, OrderDate, Subject, Link, Company, User, Tdate) VALUES ('$ordno', '$ordtdt', '$subject', '$link', '$company', '$auth', '$dt'); ");
+            $permission = "Success!! - Order Inserted";    
+            $mysubmit = 0;
+            $ordno=NULL;
+            $ordtdt=NULL;
+            $subject=NULL;
+            $link=NULL;
+            $company=NULL;
             //echo $orderno;
             //echo $orderdt;
             //echo $subject;
             //echo $link;
-            $mysubmit = 0;
             //echo $mysubmit;
         } else {
         //		$error = "Incorrect Credentials";
-            echo "You are not authorized to perform this action.";
+            $permission = "You are not authorized to perform this action.";
         }
     }
 }
+            //$mysubmit = 0;
+
 
 ?>
+<div class="content">
 
-
-
-
+<h1>Library & Resources Admin</h1>
 
 <div class="content">
     <div class="form-container">
@@ -111,8 +111,14 @@ if ($_REQUEST['btn_submit']=="Create") {
 					;?>"
 		>
 			<div>
-				<input type="submit" name="btn_submit" value="Start">
-				<?php echo $error ?>
+            <input
+                   type="text" 
+                    name="permission" 
+                    id="permission"
+                    value="<?php echo $permission; ?>"
+                    readonly="true"
+                    
+                >
 			</div>
 		</form>
 		<form
@@ -123,20 +129,21 @@ if ($_REQUEST['btn_submit']=="Create") {
 		>
             <input type="hidden" name="mysubmit" value="<?php echo $mysubmit; ?>" />
 			<div>
-				<label for="orderno">Order#</label>
+				<label for="ordno">Order#</label>
 				<input
-					type="integer"
-					name="orderno"
-					id="orderno"
+					type="text"
+					name="ordno"
+					id="ordno"
 					required
 				>
 			</div>
 			<div>
-				<label for="orderdt">Order Date</label>
+				<label for="orddt">Order Date</label>
 				<input
 					type="date"
-					name="orderdt"
-					id="orderdt"
+					name="orddt"
+					id="orddt"
+					required
 				>
 			</div>
 			<div>
@@ -160,14 +167,15 @@ if ($_REQUEST['btn_submit']=="Create") {
 			<div>
 				<label for="company">Company</label>
 				<select name="company" id="company">
-					<option value="" hidden></option>
-					<option value="B">WBSEB</option>
-					<option value="D">WBSEDCL</option>
-					<option value="T">WBSETCL</option>
+                   <option value="" hidden></option>
+					<option value="2">WBSEDCL</option>
+					<option value="3">WBSETCL</option>
+					<option value="1">WBSEB</option>
+					required
 				</select>
 			</div>
-			<div>
-				<input type="submit" name="btn_submit" value="Create">
+				<div>
+				<input type="submit" name="btn_submit" value="Insert">
 				<?php echo $error ?>
 			</div>
 		</form>
@@ -176,7 +184,6 @@ if ($_REQUEST['btn_submit']=="Create") {
 </div>
 <table>
   <tr>
-    <th>Doc No.</th>
     <th>Order No.</th>
     <th style="width:10%">Date </th>
     <th>Subject</th>
@@ -184,7 +191,6 @@ if ($_REQUEST['btn_submit']=="Create") {
   </tr>
     <?php while ($profile = $profiles->fetch_assoc()) { ?>
         <tr>
-            <td><?php echo $profile['DocNo']; ?></td>
             <td><?php echo $profile['OrderNumber']; ?></td>
             <td><?php echo($profile['Dt']); ?></td>
             <td><?php echo $profile['Subject']; ?></td>
