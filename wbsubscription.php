@@ -23,6 +23,7 @@
 	<script defer src="https://pyscript.net/alpha/pyscript.js"></script>
 </head>
 <body>
+
 <py-env>
   - qrcode
   - pillow
@@ -34,13 +35,14 @@
 if ($_REQUEST['btn_submit']=="Submit Payment Details") {
     
 	$amount = $_POST['paymentamt'];
-$dop = $_POST['paydt'];
-$utr = $_POST['utrno1'];
-$remarks = $_POST['remarks'];
-$dt = date('d/m/Y h:i:s a', time());
+    $dop = $_POST['paydt'];
+    $utr = $_POST['utrno1'];
+    $remarks = $_POST['remarks'];
+    $dt = date('d/m/Y h:i:s a', time());
+    $msg="";
 	if ($utr == $_POST['utrno2']) {
         $payinfo = $conn->query("INSERT INTO Onlinepay (MemNo, Amount, UTR, DOP, MemberRemarks, Tdate) VALUES ('$auth', '$amount', '$utr', '$dop', '$remarks', '$dt')");
-	    echo "Success!! Payment information submitted.";
+	    $msg = "Success!! Payment information submitted.";
 
             $mailtext = "Your payment information has been submitted successfully.";
 //            $sql = $conn->query("UPDATE Wbusers SET OTP='$randno', OTPTime='$dt' WHERE MemNo = '$memno'");
@@ -78,10 +80,11 @@ $dt = date('d/m/Y h:i:s a', time());
 	    //echo $utr;
 	    //echo $dop;
 	}
-	else { echo "Password does not match.";
+	else { $msg = "Password does not match.";
 	}
 }
 ?>
+
 
 <div class="ad-column">
 	<?php
@@ -242,10 +245,14 @@ img
                     name="remarks" 
                     id="remarks"
                 ></p>
-                
-                
                 <input type="submit" name="btn_submit" value="Submit Payment Details">
                     <?php echo $error ?>
+                <p></p>
+                <textarea id="msg" name="msg" rows="3" cols="30" margin: "0px" readonly style="align-content:left; overflow:auto; border:"none" outset #000000;">
+                    <?php echo $msg; ?>
+                </textarea>
+                </p>
+
             </div>
         
     </div>
