@@ -41,9 +41,11 @@ if ($_REQUEST['btn_submit']=="Submit Payment Details") {
     $dt = date('d/m/Y h:i:s a', time());
     $msg="";
 	if ($utr == $_POST['utrno2']) {
-        $payinfo = $conn->query("INSERT INTO Onlinepay (MemNo, Amount, UTR, DOP, MemberRemarks, Tdate) VALUES ('$auth', '$amount', '$utr', '$dop', '$remarks', '$dt')");
-	    $msg = "Success!! Payment information submitted.";
-
+	    if (duppay->query("select UTR from Onlinepay where UTR = $utr ") ->num_rows == 1) {
+	        $msg = "UTR number already entered.";
+	    else {
+            $payinfo = $conn->query("INSERT INTO Onlinepay (MemNo, Amount, UTR, DOP, MemberRemarks, Tdate, Recon) VALUES ('$auth', '$amount', '$utr', '$dop', '$remarks', '$dt', 'I')");
+	        $msg = "Success!! Payment information submitted.";
             $mailtext = "Your payment information has been submitted successfully.";
 //            $sql = $conn->query("UPDATE Wbusers SET OTP='$randno', OTPTime='$dt' WHERE MemNo = '$memno'");
             $profiles = $conn->query("SELECT * FROM profiles WHERE MemNo = '$auth'");
@@ -106,8 +108,11 @@ if ($_REQUEST['btn_submit']=="Submit Payment Details") {
     
         $due = $conn->query("SELECT Dues.MemNo, Name, Dues.Year, Mths_in_Yr, OpBal, Membership, Farewell,OpBal+Membership+Farewell Total, Payment FROM profiles, Dues LEFT JOIN TotPayments ON (Dues.MemNo = TotPayments.MemNo and TotPayments.Year= $BaseYr ) where Dues.Year= $BaseYr and Dues.MemNo=profiles.MemNo and profiles.MemNo = '{$_SESSION[('memno')]}'")->fetch_assoc();
         //$onlpay = $conn->query("SELECT sum(Amount) Onl from Onlinepay where MemNo = $auth and DOP >= $StartDt and DOP <= $EndDt and length(Recon)=0 group by MemNo");
-        $onlpay = $conn->query("SELECT sum(Amount) Onl from Onlinepay")->fetch_assoc();
+        $onlpay = $conn->query("SELECT sum(Amount) Onl from Onlinepay where MemNo = $auth and DOP >= '$StartDt' and DOP <= '$EndDt' ")->fetch_assoc();
         //echo $onlpay['Onl'];
+        //echo $StartDt;
+        //echo $EndDt;
+        //echo $auth;
         ?>
 <?php echo "Financial Year: ", $FinYr; ?>
 
